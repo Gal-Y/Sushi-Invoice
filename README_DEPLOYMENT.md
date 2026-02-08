@@ -2,6 +2,8 @@
 
 This document provides instructions for deploying the Sushi Invoice application to AWS Elastic Beanstalk.
 
+For the newer Lambda/API Gateway migration path, see `README_SERVERLESS_MIGRATION.md`.
+
 ## Prerequisites
 
 - AWS Account

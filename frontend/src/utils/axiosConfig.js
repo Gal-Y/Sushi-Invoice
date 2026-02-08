@@ -1,11 +1,14 @@
 import axios from 'axios';
 
+const explicitApiBaseUrl = process.env.REACT_APP_API_BASE_URL
+  ? process.env.REACT_APP_API_BASE_URL.replace(/\/+$/, '')
+  : null;
+
 // Create an axios instance with a base URL for our API
 const apiClient = axios.create({
-  // In production, use relative URL (no base path) so that version (v1/v2) can be included in each request
-  baseURL: process.env.NODE_ENV === 'production' 
-    ? '' // Empty string allows for relative paths with version numbers
-    : 'http://localhost:3000', // In development, keep the domain but remove version prefix
+  baseURL:
+    explicitApiBaseUrl ||
+    (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000'),
   headers: {
     'Content-Type': 'application/json',
   },

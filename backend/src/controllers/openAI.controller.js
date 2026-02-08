@@ -2,10 +2,21 @@
 const { OpenAI } = require('openai');
 const fs = require('fs');
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const openAiApiKey = process.env.OPENAI_API_KEY;
+const openai = openAiApiKey ? new OpenAI({ apiKey: openAiApiKey }) : null;
+
+const ensureOpenAiConfigured = (res) => {
+  if (openai) {
+    return true;
+  }
+
+  res.status(503).json({
+    success: false,
+    message: 'AI features are unavailable because OPENAI_API_KEY is not configured.'
+  });
+
+  return false;
+};
 
 /**
  * Process text prompt for invoice creation
@@ -13,6 +24,10 @@ const openai = new OpenAI({
  * @param {Object} res - Express response object
  */
 const createInvoiceFromText = async (req, res) => {
+  if (!ensureOpenAiConfigured(res)) {
+    return;
+  }
+
   try {
     const { prompt, conversation = [] } = req.body;
     
@@ -165,6 +180,10 @@ const createInvoiceFromText = async (req, res) => {
  * @param {Object} res - Express response object
  */
 const createInvoiceFromImage = async (req, res) => {
+  if (!ensureOpenAiConfigured(res)) {
+    return;
+  }
+
   try {
     console.log("Processing image upload request");
     // Check if file exists in the request

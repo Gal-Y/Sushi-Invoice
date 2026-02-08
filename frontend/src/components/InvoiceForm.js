@@ -8,15 +8,7 @@ import { FaDownload, FaPaperPlane } from 'react-icons/fa';
 import SendOptionsPopup from './sendInvoice/SendOptionsPopup';
 import ExportInvoicePopup from './exportInvoice/ExportInvoicePopup';
 
-// Determine base URL based on environment
-const getBaseUrl = () => {
-  if (process.env.NODE_ENV === 'production') {
-    return '/v2/invoices'; // Use relative path in production
-  }
-  return 'http://localhost:3000/v2/invoices'; // Use full URL in development
-};
-
-const API_URL = getBaseUrl();
+const API_URL = '/v2/invoices';
 
 // Helper function to get cookie
 const getCookie = (name) => {

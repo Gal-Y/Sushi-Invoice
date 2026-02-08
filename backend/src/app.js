@@ -3,6 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
@@ -73,13 +74,17 @@ app.use('/v1/xml-dataset', xmlDatasetRoutes);
 app.use('/v1/export', exportRoutes);
 app.use('/v1/ai', aiRoutes);
 
-// Serve frontend static files
-app.use(express.static(path.resolve(__dirname, '../../public')));
+const frontendDir = path.resolve(__dirname, '../../public');
+const shouldServeFrontend =
+  process.env.SERVE_FRONTEND !== 'false' && fs.existsSync(frontendDir);
 
-// Serve frontend index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../public/index.html'));
-});
+if (shouldServeFrontend) {
+  app.use(express.static(frontendDir));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendDir, 'index.html'));
+  });
+}
 
 // Handle 404 routes (when the user sends a request to a route that doesn't exist)
 app.use((req, res) => {
