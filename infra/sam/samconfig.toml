@@ -1,0 +1,16 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "sushi-invoice-serverless"
+resolve_s3 = true
+s3_prefix = "sushi-invoice-serverless"
+region = "ap-southeast-2"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+fail_on_empty_changeset = false
+parameter_overrides = [
+  "UsersTableName=invoice-system-users",
+  "InvoicesTableName=invoice-system-invoices",
+  "JwtSecret=change-this-secret",
+  "CorsAllowedOrigins=https://your-frontend-domain.example"
+]

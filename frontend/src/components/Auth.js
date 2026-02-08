@@ -80,7 +80,19 @@ const Auth = ({ isLoginForm }) => {
       
       // Check for token in the correct location in the response
       const token = response.data.data?.token || response.data.token;
-      const userData = response.data.data?.user || response.data.user;
+      // Login returns data.user; register returns user fields at data.{userId,email,name,role}
+      const userData =
+        response.data.data?.user ||
+        response.data.user ||
+        (response.data.data?.userId
+          ? {
+              userId: response.data.data.userId,
+              UserID: response.data.data.userId,
+              email: response.data.data.email,
+              name: response.data.data.name,
+              role: response.data.data.role
+            }
+          : undefined);
       
       console.log('Extracted token:', !!token);
       console.log('Extracted user data:', userData);

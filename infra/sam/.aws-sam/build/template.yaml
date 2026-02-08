@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Sushi Invoice backend on Lambda and API Gateway HTTP API.
-
 Parameters:
   StageName:
     Type: String
@@ -55,12 +54,11 @@ Parameters:
     Type: String
     Default: ''
     NoEcho: true
-
 Globals:
   Function:
     Runtime: nodejs20.x
     Architectures:
-      - x86_64
+    - x86_64
     MemorySize: 512
     Timeout: 29
     Tracing: Active
@@ -69,71 +67,98 @@ Globals:
         NODE_ENV: production
         USE_LOCAL_DYNAMODB: 'false'
         SERVE_FRONTEND: 'false'
-        DYNAMODB_USERS_TABLE: !Ref UsersTableName
-        DYNAMODB_INVOICES_TABLE: !Ref InvoicesTableName
-        JWT_SECRET: !Ref JwtSecret
-        JWT_EXPIRE: !Ref JwtExpire
-        ALLOWED_ORIGINS: !Join [",", !Ref CorsAllowedOrigins]
-        CORS_ORIGIN: !Join [",", !Ref CorsAllowedOrigins]
-        ORDER_API_URL: !Ref OrderApiUrl
-        CURRENCY_API_KEY: !Ref CurrencyApiKey
-        PEPPOL_API_URL: !Ref PeppolApiUrl
-        PEPPOL_API_KEY: !Ref PeppolApiKey
-        PEPPOL_SEND_ENDPOINT: !Ref PeppolSendEndpoint
-        PEPPOL_STATUS_ENDPOINT: !Ref PeppolStatusEndpoint
-        OPENAI_API_KEY: !Ref OpenAIApiKey
-        GOOGLE_EMAIL: !Ref GoogleEmail
-        GOOGLE_APP_PASSWORD: !Ref GoogleAppPassword
-
+        DYNAMODB_USERS_TABLE:
+          Ref: UsersTableName
+        DYNAMODB_INVOICES_TABLE:
+          Ref: InvoicesTableName
+        JWT_SECRET:
+          Ref: JwtSecret
+        JWT_EXPIRE:
+          Ref: JwtExpire
+        ALLOWED_ORIGINS:
+          Fn::Join:
+          - ','
+          - Ref: CorsAllowedOrigins
+        CORS_ORIGIN:
+          Fn::Join:
+          - ','
+          - Ref: CorsAllowedOrigins
+        ORDER_API_URL:
+          Ref: OrderApiUrl
+        CURRENCY_API_KEY:
+          Ref: CurrencyApiKey
+        PEPPOL_API_URL:
+          Ref: PeppolApiUrl
+        PEPPOL_API_KEY:
+          Ref: PeppolApiKey
+        PEPPOL_SEND_ENDPOINT:
+          Ref: PeppolSendEndpoint
+        PEPPOL_STATUS_ENDPOINT:
+          Ref: PeppolStatusEndpoint
+        OPENAI_API_KEY:
+          Ref: OpenAIApiKey
+        GOOGLE_EMAIL:
+          Ref: GoogleEmail
+        GOOGLE_APP_PASSWORD:
+          Ref: GoogleAppPassword
 Resources:
   ApiGateway:
     Type: AWS::Serverless::HttpApi
     Properties:
-      StageName: !Ref StageName
+      StageName:
+        Ref: StageName
       CorsConfiguration:
-        AllowOrigins: !Ref CorsAllowedOrigins
+        AllowOrigins:
+          Ref: CorsAllowedOrigins
         AllowHeaders:
-          - Content-Type
-          - Authorization
-          - token
+        - Content-Type
+        - Authorization
+        - token
         AllowMethods:
-          - GET
-          - POST
-          - PUT
-          - DELETE
-          - OPTIONS
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
         AllowCredentials: true
-
   InvoiceApiFunction:
     Type: AWS::Serverless::Function
     Properties:
-      # '$default' is valid for API Gateway stages but invalid in Lambda function names.
       FunctionName: sushi-invoice-api
-      CodeUri: ../../backend
+      CodeUri: InvoiceApiFunction
       Handler: lambda.handler
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UsersTableName
-        - DynamoDBCrudPolicy:
-            TableName: !Ref InvoicesTableName
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UsersTableName
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: InvoicesTableName
       Events:
         Root:
           Type: HttpApi
           Properties:
-            ApiId: !Ref ApiGateway
+            ApiId:
+              Ref: ApiGateway
             Path: /
             Method: ANY
         Proxy:
           Type: HttpApi
           Properties:
-            ApiId: !Ref ApiGateway
+            ApiId:
+              Ref: ApiGateway
             Path: /{proxy+}
             Method: ANY
-
+    Metadata:
+      SamResourceId: InvoiceApiFunction
 Outputs:
   ApiBaseUrl:
     Description: Base URL for the deployed API.
-    Value: !GetAtt ApiGateway.ApiEndpoint
+    Value:
+      Fn::GetAtt:
+      - ApiGateway
+      - ApiEndpoint
   ApiFunctionName:
     Description: Lambda function name.
-    Value: !Ref InvoiceApiFunction
+    Value:
+      Ref: InvoiceApiFunction
